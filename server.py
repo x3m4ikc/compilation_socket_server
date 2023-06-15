@@ -44,8 +44,8 @@ def handle_signal(signum, frame):
     sys.exit(0)
 
 
-# signal.signal(signal.SIGUSR1, handle_signal)
-signal.signal(signal.SIGINT, handle_signal)
+signal.signal(signal.SIGUSR1, handle_signal)  # Unix
+# signal.signal(signal.SIGINT, handle_signal)  # Windows
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
