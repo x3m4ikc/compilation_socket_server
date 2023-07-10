@@ -1,6 +1,5 @@
 import socket
 import subprocess
-import sys
 
 SIZE = 1024
 FORMAT = "utf"
@@ -21,10 +20,9 @@ class Server:
         while True:
             self.__client_socket, self.__client_address = self.server_socket.accept()
             print(f"New connection from {self.__client_address}")
-            self.handle_client()
+            self.handle_client_command()
 
-    def handle_client(self):
-
+    def handle_client_command(self):
         command = self.__client_socket.recv(SIZE).decode(FORMAT)
         print(command)
         command, filename = command.split()
@@ -37,18 +35,21 @@ class Server:
 
         if command == "Number":
             for _ in range(int(filename)):
-                command, filename = self.__client_socket.recv(SIZE).decode(FORMAT).split()
+                command, filename = (
+                    self.__client_socket.recv(SIZE).decode(FORMAT).split()
+                )
                 self.get_file()
                 self.compile_file(filename)
 
             self.__client_socket.close()
             print(f"{self.__client_address} disconnected")
-#        if command == "Upgrade":
-#            self.get_file()
-#            command = ["python", f"{filename}"]
-#            result = subprocess.call(command)
-#            if result == 0:
-#                sys.exit()
+
+    #        if command == "Upgrade":
+    #            self.get_file()
+    #            command = ["python", f"{filename}"]
+    #            result = subprocess.call(command)
+    #            if result == 0:
+    #                sys.exit()
 
     def get_file(self):
         filename = self.__client_socket.recv(SIZE).decode(FORMAT)
