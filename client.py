@@ -1,4 +1,3 @@
-import os
 import socket
 
 SIZE = 1024
@@ -27,9 +26,9 @@ class Client:
             for _ in range(int(filename)):
                 self.handle_command()
 
-#        if command == "Upgrade":
-#            self.send_file(filename)
-#            self.get_result()
+    #        if command == "Upgrade":
+    #            self.send_file(filename)
+    #            self.get_result()
 
     def send_file(self, filename):
         file = open(f"data/{filename}", "r")
