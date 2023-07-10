@@ -1,56 +1,74 @@
 import socket
 import subprocess
-import signal
 import sys
 
-HOST = '127.0.0.1'
-PORT = 1234
+SIZE = 1024
+FORMAT = "utf"
 
 
-def handle_connection(conn):
-    while True:
-        data = conn.recv(1024)
-        if not data:
-            break
-        data = data.decode()
-        lines = data.split('\n')
-        num_files = None
-        makefile = None
-        files = []
-        for line in lines:
-            if line.startswith('Number:'):
-                num_files = int(line.split()[1])
-            elif line.startswith('Makefile:'):
-                makefile = line.split()[1]
-            elif line.startswith('File'):
-                files.append(line.split()[1])
-        if num_files is None or len(files) != num_files:
-            conn.sendall(b'Result: Fail\nInvalid number of files\n')
-            continue
-        if makefile is not None:
-            make_result = subprocess.run(['make', '-f', makefile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            if make_result.returncode != 0:
-                conn.sendall(b'Result: Fail\n' + make_result.stderr)
-                continue
-        compile_result = subprocess.run(['gcc'] + files, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if compile_result.returncode == 0:
-            conn.sendall(b'Result: OK\n')
-        else:
-            conn.sendall(b'Result: Fail\n' + compile_result.stderr)
+class Server:
+    def __init__(self, port=1235, ip="127.0.0.1"):
+        self.__client_socket = None
+        self.__client_address = None
+        self.port = port
+        self.ip = ip
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((self.ip, self.port))
+
+    def start(self):
+        self.server_socket.listen()
+        print(f"Server is listening on port {self.port}")
+        while True:
+            self.__client_socket, self.__client_address = self.server_socket.accept()
+            print(f"New connection from {self.__client_address}")
+            self.handle_client()
+
+    def handle_client(self):
+
+        command = self.__client_socket.recv(SIZE).decode(FORMAT)
+        print(command)
+        command, filename = command.split()
+
+        if command == "File":
+            self.get_file()
+            self.compile_file(filename)
+            self.__client_socket.close()
+            print(f"{self.__client_address} disconnected")
+
+        if command == "Number":
+            for _ in range(int(filename)):
+                command, filename = self.__client_socket.recv(SIZE).decode(FORMAT).split()
+                self.get_file()
+                self.compile_file(filename)
+
+#        if command == "Upgrade":
+#            self.get_file()
+#            command = ["python", f"{filename}"]
+#            result = subprocess.call(command)
+#            if result == 0:
+#                sys.exit()
+
+    def get_file(self):
+        filename = self.__client_socket.recv(SIZE).decode(FORMAT)
+        print(f"File {filename} is received")
+        file = open(filename, "w")
+        self.__client_socket.send("File is received".encode(FORMAT))
+
+        data = self.__client_socket.recv(SIZE).decode(FORMAT)
+        file.write(data)
+        file.close()
+
+    def compile_file(self, filename):
+        command = ["python", f"{filename}"]
+        try:
+            output = subprocess.run(command, capture_output=True, text=True)
+            output.check_returncode()
+            self.__client_socket.send("Ok".encode(FORMAT))
+            return 1
+        except subprocess.CalledProcessError as ex:
+            self.__client_socket.send(f"{ex.stderr}".encode(FORMAT))
 
 
-def handle_signal(signum, frame):
-    print('Received signal', signum)
-    sys.exit(0)
-
-
-signal.signal(signal.SIGUSR1, handle_signal)  # Unix
-# signal.signal(signal.SIGINT, handle_signal)  # Windows
-
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-    while True:
-        conn, addr = s.accept()
-        print('Connected by', addr)
-        handle_connection(conn)
+if __name__ == "__main__":
+    server = Server()
+    server.start()
