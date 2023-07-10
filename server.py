@@ -7,7 +7,7 @@ FORMAT = "utf"
 
 
 class Server:
-    def __init__(self, port=1235, ip="127.0.0.1"):
+    def __init__(self, port=1234, ip="127.0.0.1"):
         self.__client_socket = None
         self.__client_address = None
         self.port = port
@@ -41,6 +41,8 @@ class Server:
                 self.get_file()
                 self.compile_file(filename)
 
+            self.__client_socket.close()
+            print(f"{self.__client_address} disconnected")
 #        if command == "Upgrade":
 #            self.get_file()
 #            command = ["python", f"{filename}"]
@@ -64,6 +66,7 @@ class Server:
             output = subprocess.run(command, capture_output=True, text=True)
             output.check_returncode()
             self.__client_socket.send("Ok".encode(FORMAT))
+            print(f"File {filename} is ok")
             return 1
         except subprocess.CalledProcessError as ex:
             self.__client_socket.send(f"{ex.stderr}".encode(FORMAT))
