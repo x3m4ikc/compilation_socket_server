@@ -31,23 +31,33 @@ class Client:
         if command == "Upgrade":
             self.send_file(filename)
             self.get_result()
-            result = self.client_socket.recv(SIZE).decode(FORMAT)
-            print(result)
+            self.get_result()
+
+#        if command == "Upgrade":
+#            self.send_file(filename)
+#            self.get_result()
+#            result = self.client_socket.recv(SIZE).decode(FORMAT)
+#            print(result)
 
     def send_file(self, filename):
         """Send file to server"""
-        file = open(f"data/{filename}", "r")
-        data = file.read()
-        self.client_socket.send(filename.encode(FORMAT))
-        message = self.client_socket.recv(SIZE).decode(FORMAT)
-        print(f"Server`s answer: {message}")
-        self.client_socket.send(data.encode(FORMAT))
-        file.close()
+        print("start sending")
+
+        with open(f"data/{filename}", "r") as file:
+            while True:
+                data = file.read(SIZE)
+                if not data:
+                    data = "END"
+                    self.client_socket.send(data.encode(FORMAT))
+                    break
+                self.client_socket.send(data.encode(FORMAT))
+                message = self.client_socket.recv(SIZE).decode(FORMAT)
+                print(message)
 
     def get_result(self):
         """Get message of compilation result"""
         result = self.client_socket.recv(SIZE).decode(FORMAT)
-        print(f"Result of file compilation: {result}")
+        print(f"Server`s answer: {result}")
 
     def close_connection(self):
         """Close connection with server"""

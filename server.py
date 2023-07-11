@@ -32,7 +32,7 @@ class Server:
         command, filename = command.split()
 
         if command == "File":
-            self.get_file()
+            self.get_file(filename)
             self.compile_file(filename)
             self.__client_socket.close()
             print(f"{self.__client_address} disconnected")
@@ -42,34 +42,46 @@ class Server:
                 command, filename = (
                     self.__client_socket.recv(SIZE).decode(FORMAT).split()
                 )
-                self.get_file()
+                self.get_file(filename)
                 self.compile_file(filename)
 
             self.__client_socket.close()
             print(f"{self.__client_address} disconnected")
 
+#        if command == "Upgrade":
+#            self.get_file()
+#            if self.compile_file(filename):
+#                self.__client_socket.send("Successfully upgraded".encode(FORMAT))
+#                 self.__client_socket.close()
+#                print(f"{self.__client_address} disconnected")
+#                self.restart_server(filename)
+#            else:
+#                self.__client_socket.send("Server not updated".encode(FORMAT))
+#                self.__client_socket.close()
+#                print(f"{self.__client_address} disconnected")
+
         if command == "Upgrade":
-            self.get_file()
+            self.get_file(filename)
             if self.compile_file(filename):
                 self.__client_socket.send("Successfully upgraded".encode(FORMAT))
-                # self.__client_socket.close()
-                print(f"{self.__client_address} disconnected")
                 self.restart_server(filename)
             else:
-                self.__client_socket.send("Server not updated".encode(FORMAT))
-                self.__client_socket.close()
-                print(f"{self.__client_address} disconnected")
+                self.__client_socket.send("Server is not upgraded".encode(FORMAT))
 
-    def get_file(self):
+    def get_file(self, filename):
         """Receive file from client"""
-        filename = self.__client_socket.recv(SIZE).decode(FORMAT)
-        print(f"File {filename} is received")
-        file = open(filename, "w")
-        self.__client_socket.send("File is received".encode(FORMAT))
+        print("start of getting a file")
 
-        data = self.__client_socket.recv(SIZE).decode(FORMAT)
-        file.write(data)
-        file.close()
+        with open(filename, "w") as file:
+            while True:
+                data = self.__client_socket.recv(SIZE).decode(FORMAT)
+                if data == "END":
+                    break
+                file.write(data)
+                self.__client_socket.send("Data received".encode(FORMAT))
+
+        print(f"File {filename} is received")
+        self.__client_socket.send("Whole file is received".encode(FORMAT))
 
     def compile_file(self, filename):
         """Exec file from client"""
