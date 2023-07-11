@@ -1,5 +1,7 @@
 import socket
 import subprocess
+import os
+import sys
 
 SIZE = 1024
 FORMAT = "utf"
@@ -15,6 +17,7 @@ class Server:
         self.server_socket.bind((self.ip, self.port))
 
     def start(self):
+        """Start server"""
         self.server_socket.listen()
         print(f"Server is listening on port {self.port}")
         while True:
@@ -23,6 +26,7 @@ class Server:
             self.handle_client_command()
 
     def handle_client_command(self):
+        """Receive and exec command from client"""
         command = self.__client_socket.recv(SIZE).decode(FORMAT)
         print(command)
         command, filename = command.split()
@@ -44,14 +48,20 @@ class Server:
             self.__client_socket.close()
             print(f"{self.__client_address} disconnected")
 
-    #        if command == "Upgrade":
-    #            self.get_file()
-    #            command = ["python", f"{filename}"]
-    #            result = subprocess.call(command)
-    #            if result == 0:
-    #                sys.exit()
+        if command == "Upgrade":
+            self.get_file()
+            if self.compile_file(filename):
+                self.__client_socket.send("Successfully upgraded".encode(FORMAT))
+                # self.__client_socket.close()
+                print(f"{self.__client_address} disconnected")
+                self.restart_server(filename)
+            else:
+                self.__client_socket.send("Server not updated".encode(FORMAT))
+                self.__client_socket.close()
+                print(f"{self.__client_address} disconnected")
 
     def get_file(self):
+        """Receive file from client"""
         filename = self.__client_socket.recv(SIZE).decode(FORMAT)
         print(f"File {filename} is received")
         file = open(filename, "w")
@@ -62,17 +72,25 @@ class Server:
         file.close()
 
     def compile_file(self, filename):
+        """Exec file from client"""
         command = ["python", f"{filename}"]
         try:
             output = subprocess.run(command, capture_output=True, text=True)
             output.check_returncode()
             self.__client_socket.send("Ok".encode(FORMAT))
             print(f"File {filename} is ok")
-            return 1
+            return True
         except subprocess.CalledProcessError as ex:
             self.__client_socket.send(f"{ex.stderr}".encode(FORMAT))
+
+    def restart_server(self, filename):
+        """Restart server"""
+        argv = [filename]
+        print("Server is updated")
+        os.execve(sys.executable, argv, os.environ)
 
 
 if __name__ == "__main__":
     server = Server()
-    server.start()
+    while True:
+        server.start()

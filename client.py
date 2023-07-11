@@ -11,9 +11,11 @@ class Client:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def connect(self):
+        """Connect to server"""
         self.client_socket.connect((self.ip, self.port))
 
     def handle_command(self):
+        """Get command with files from user"""
         command = input()
         self.client_socket.send(command.encode(FORMAT))
         command, filename = command.split()
@@ -26,11 +28,14 @@ class Client:
             for _ in range(int(filename)):
                 self.handle_command()
 
-    #        if command == "Upgrade":
-    #            self.send_file(filename)
-    #            self.get_result()
+        if command == "Upgrade":
+            self.send_file(filename)
+            self.get_result()
+            result = self.client_socket.recv(SIZE).decode(FORMAT)
+            print(result)
 
     def send_file(self, filename):
+        """Send file to server"""
         file = open(f"data/{filename}", "r")
         data = file.read()
         self.client_socket.send(filename.encode(FORMAT))
@@ -40,10 +45,12 @@ class Client:
         file.close()
 
     def get_result(self):
+        """Get message of compilation result"""
         result = self.client_socket.recv(SIZE).decode(FORMAT)
         print(f"Result of file compilation: {result}")
 
     def close_connection(self):
+        """Close connection with server"""
         self.client_socket.close()
 
 
