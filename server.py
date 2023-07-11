@@ -85,7 +85,8 @@ class Server:
 
     def restart_server(self, filename):
         """Restart server"""
-        argv = [filename]
+        argv = [sys.executable, filename]
+
         print("Server is updated")
         os.execve(sys.executable, argv, os.environ)
 
