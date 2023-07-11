@@ -87,8 +87,11 @@ class Server:
         """Exec file from client"""
         command = ["python", f"{filename}"]
         try:
-            output = subprocess.run(command, capture_output=True, text=True)
+            print("next step")
+            output = subprocess.run(command, capture_output=True, text=True) # TODO: BUGFIX is waiting
+            print("next step")
             output.check_returncode()
+            print("next step")
             self.__client_socket.send("Ok".encode(FORMAT))
             print(f"File {filename} is ok")
             return True

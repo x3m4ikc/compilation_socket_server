@@ -31,7 +31,6 @@ class Client:
         if command == "Upgrade":
             self.send_file(filename)
             self.get_result()
-            self.get_result()
 
 #        if command == "Upgrade":
 #            self.send_file(filename)
