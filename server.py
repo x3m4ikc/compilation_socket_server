@@ -8,7 +8,7 @@ FORMAT = "utf"
 
 
 class Server:
-    def __init__(self, port=1233, ip="127.0.0.1"):
+    def __init__(self, port=1234, ip="127.0.0.1"):
         self.__client_socket = None
         self.__client_address = None
         self.port = port

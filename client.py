@@ -5,7 +5,7 @@ FORMAT = "utf"
 
 
 class Client:
-    def __init__(self, ip="127.0.0.1", port=1233):
+    def __init__(self, ip="127.0.0.1", port=1234):
         self.ip = ip
         self.port = port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
