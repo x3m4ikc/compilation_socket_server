@@ -8,7 +8,7 @@ FORMAT = "utf"
 
 
 class Server:
-    def __init__(self, port=1234, ip="127.0.0.1"):
+    def __init__(self, port=1235, ip="127.0.0.1"):
         self.__client_socket = None
         self.__client_address = None
         self.port = port
@@ -53,13 +53,15 @@ class Server:
             if self.compile_file(filename):
                 self.__client_socket.send("Successfully upgraded".encode(FORMAT))
                 self.restart_server(filename)
+
             else:
                 self.__client_socket.send("Server is not upgraded".encode(FORMAT))
 
+            self.__client_socket.close()
+            print(f"{self.__client_address} disconnected")
+
     def get_file(self, filename):
         """Receive file from client"""
-        print("Start of getting a file")
-
         with open(filename, "w") as file:
             while True:
                 data = self.__client_socket.recv(SIZE).decode(FORMAT)
@@ -77,11 +79,11 @@ class Server:
         try:
             output = subprocess.run(command, capture_output=True, text=True, timeout=10)
             output.check_returncode()
-            self.__client_socket.send("Ok".encode(FORMAT))
+            self.__client_socket.send(f"File {filename} compilation is Ok".encode(FORMAT))
             print(f"File {filename} is ok")
             return True
         except subprocess.TimeoutExpired:
-            self.__client_socket.send("Ok".encode(FORMAT))
+            self.__client_socket.send(f"File {filename} compilation is Ok".encode(FORMAT))
             print(f"File {filename} is ok")
             return True
         except subprocess.CalledProcessError as ex:
