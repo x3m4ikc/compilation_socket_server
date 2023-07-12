@@ -6,7 +6,7 @@ FORMAT = "utf"
 
 
 class Client:
-    def __init__(self, ip="127.0.0.1", port=1234):
+    def __init__(self, ip, port):
         self.ip = ip
         self.port = port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -61,8 +61,8 @@ class Client:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--host', help='Server address', default='127.0.0.1')
-    parser.add_argument('-p', '--port', help='Server port', type=int, default=1234)
+    parser.add_argument("-d", "--host", help="Server address", default="127.0.0.1")
+    parser.add_argument("-p", "--port", help="Server port", type=int, default=1234)
     args = parser.parse_args()
     client = Client(ip=args.host, port=args.port)
     client.connect()

@@ -80,11 +80,15 @@ class Server:
         try:
             output = subprocess.run(command, capture_output=True, text=True, timeout=10)
             output.check_returncode()
-            self.__client_socket.send(f"File {filename} compilation is Ok".encode(FORMAT))
+            self.__client_socket.send(
+                f"File {filename} compilation is Ok".encode(FORMAT)
+            )
             print(f"File {filename} is ok")
             return True
         except subprocess.TimeoutExpired:
-            self.__client_socket.send(f"File {filename} compilation is Ok".encode(FORMAT))
+            self.__client_socket.send(
+                f"File {filename} compilation is Ok".encode(FORMAT)
+            )
             print(f"File {filename} is ok")
             return True
         except subprocess.CalledProcessError as ex:
@@ -100,8 +104,8 @@ class Server:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--host', help='Server address', default='127.0.0.1')
-    parser.add_argument('-p', '--port', help='Server port', type=int, default=1234)
+    parser.add_argument("-d", "--host", help="Server address", default="127.0.0.1")
+    parser.add_argument("-p", "--port", help="Server port", type=int, default=1234)
     args = parser.parse_args()
     server = Server(ip=args.host, port=args.port)
     while True:
