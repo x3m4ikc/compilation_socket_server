@@ -83,12 +83,6 @@ class Server:
         print(f"File {filename} is received")
         self.__client_socket.send("Whole file is received".encode(FORMAT))
 
-    def return_compilation_result(self, output, filename):
-        output.check_returncode()
-        self.__client_socket.send("Ok".encode(FORMAT))
-        print(f"File {filename} is ok")
-        return True
-
     def compile_file(self, filename):
         """Exec file from client"""
         command = ["python", f"{filename}"]
