@@ -48,18 +48,6 @@ class Server:
             self.__client_socket.close()
             print(f"{self.__client_address} disconnected")
 
-        #        if command == "Upgrade":
-        #            self.get_file()
-        #            if self.compile_file(filename):
-        #                self.__client_socket.send("Successfully upgraded".encode(FORMAT))
-        #                 self.__client_socket.close()
-        #                print(f"{self.__client_address} disconnected")
-        #                self.restart_server(filename)
-        #            else:
-        #                self.__client_socket.send("Server not updated".encode(FORMAT))
-        #                self.__client_socket.close()
-        #                print(f"{self.__client_address} disconnected")
-
         if command == "Upgrade":
             self.get_file(filename)
             if self.compile_file(filename):

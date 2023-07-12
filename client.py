@@ -34,12 +34,6 @@ class Client:
             self.get_result()
             self.get_result()
 
-    #        if command == "Upgrade":
-    #            self.send_file(filename)
-    #            self.get_result()
-    #            result = self.client_socket.recv(SIZE).decode(FORMAT)
-    #            print(result)
-
     def send_file(self, filename):
         """Send file to server"""
         print("start sending")
