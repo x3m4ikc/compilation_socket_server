@@ -8,7 +8,7 @@ FORMAT = "utf"
 
 
 class Server:
-    def __init__(self, port=1234, ip="127.0.0.1"):
+    def __init__(self, port=1233, ip="127.0.0.1"):
         self.__client_socket = None
         self.__client_address = None
         self.port = port
@@ -83,15 +83,22 @@ class Server:
         print(f"File {filename} is received")
         self.__client_socket.send("Whole file is received".encode(FORMAT))
 
+    def return_compilation_result(self, output, filename):
+        output.check_returncode()
+        self.__client_socket.send("Ok".encode(FORMAT))
+        print(f"File {filename} is ok")
+        return True
+
     def compile_file(self, filename):
         """Exec file from client"""
         command = ["python", f"{filename}"]
         try:
-            print("next step")
-            output = subprocess.run(command, capture_output=True, text=True) # TODO: BUGFIX is waiting
-            print("next step")
+            output = subprocess.run(command, capture_output=True, text=True, timeout=10)
             output.check_returncode()
-            print("next step")
+            self.__client_socket.send("Ok".encode(FORMAT))
+            print(f"File {filename} is ok")
+            return True
+        except subprocess.TimeoutExpired:
             self.__client_socket.send("Ok".encode(FORMAT))
             print(f"File {filename} is ok")
             return True
