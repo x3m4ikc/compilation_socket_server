@@ -23,6 +23,7 @@ class Client:
         if command == "File":
             self.send_file(filename)
             self.get_result()
+            self.get_result()
 
         if command == "Number":
             for _ in range(int(filename)):
@@ -30,7 +31,6 @@ class Client:
 
         if command == "Upgrade":
             self.send_file(filename)
-            self.get_result()
             self.get_result()
 
 #        if command == "Upgrade":

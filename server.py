@@ -87,8 +87,12 @@ class Server:
         """Exec file from client"""
         command = ["python", f"{filename}"]
         try:
-            output = subprocess.run(command, capture_output=True, text=True)
+            output = subprocess.run(command, capture_output=True, text=True, timeout=10)
             output.check_returncode()
+            self.__client_socket.send("Ok".encode(FORMAT))
+            print(f"File {filename} is ok")
+            return True
+        except subprocess.TimeoutExpired:
             self.__client_socket.send("Ok".encode(FORMAT))
             print(f"File {filename} is ok")
             return True
