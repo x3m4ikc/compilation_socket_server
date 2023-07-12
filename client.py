@@ -5,7 +5,7 @@ FORMAT = "utf"
 
 
 class Client:
-    def __init__(self, ip="127.0.0.1", port=1234):
+    def __init__(self, ip="127.0.0.1", port=1235):
         self.ip = ip
         self.port = port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,12 +32,13 @@ class Client:
         if command == "Upgrade":
             self.send_file(filename)
             self.get_result()
+            self.get_result()
 
-#        if command == "Upgrade":
-#            self.send_file(filename)
-#            self.get_result()
-#            result = self.client_socket.recv(SIZE).decode(FORMAT)
-#            print(result)
+    #        if command == "Upgrade":
+    #            self.send_file(filename)
+    #            self.get_result()
+    #            result = self.client_socket.recv(SIZE).decode(FORMAT)
+    #            print(result)
 
     def send_file(self, filename):
         """Send file to server"""
