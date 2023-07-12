@@ -33,11 +33,10 @@ class Client:
             self.send_file(filename)
             self.get_result()
             self.get_result()
+            self.get_result()
 
     def send_file(self, filename):
         """Send file to server"""
-        print("start sending")
-
         with open(f"data/{filename}", "r") as file:
             while True:
                 data = file.read(SIZE)
