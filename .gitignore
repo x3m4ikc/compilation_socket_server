@@ -1,0 +1,6 @@
+*
+*.py
+data/*
+!.gitignore
+!client.py
+!server.py

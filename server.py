@@ -2,13 +2,14 @@ import socket
 import subprocess
 import os
 import sys
+import argparse
 
 SIZE = 1024
 FORMAT = "utf"
 
 
 class Server:
-    def __init__(self, port=1235, ip="127.0.0.1"):
+    def __init__(self, port, ip):
         self.__client_socket = None
         self.__client_address = None
         self.port = port
@@ -98,6 +99,10 @@ class Server:
 
 
 if __name__ == "__main__":
-    server = Server()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--host', help='Server address', default='127.0.0.1')
+    parser.add_argument('-p', '--port', help='Server port', type=int, default=1234)
+    args = parser.parse_args()
+    server = Server(ip=args.host, port=args.port)
     while True:
         server.start()
