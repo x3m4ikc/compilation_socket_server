@@ -4,3 +4,4 @@ data/*
 !.gitignore
 !client.py
 !server.py
+!requirements.txt
