@@ -1,7 +1,7 @@
-import subprocess
-import unittest
 import socket
+import subprocess
 import threading
+import unittest
 from unittest.mock import patch
 
 from client import Client
@@ -26,6 +26,7 @@ class TestClient(unittest.TestCase):
 
         self.server_thr.join()
         self.assertEqual(self.server.output, b"Hello, World!\n")
+
 
 if __name__ == "__main__":
     unittest.main()

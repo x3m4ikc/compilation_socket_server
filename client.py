@@ -1,5 +1,5 @@
-import socket
 import argparse
+import socket
 
 SIZE = 1024
 FORMAT = "utf"
