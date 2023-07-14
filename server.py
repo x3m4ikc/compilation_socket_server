@@ -28,9 +28,12 @@ class Server:
 
     def handle_client_command(self):
         """Receive and exec command from client"""
-        command = self.__client_socket.recv(SIZE).decode(FORMAT)
-        print(command)
-        command, filename = command.split()
+        try:
+            command = self.__client_socket.recv(SIZE).decode(FORMAT)
+            print(command)
+            command, filename = command.split()
+        except ValueError:
+            print(f"Client {self.__client_address} interrupted connection")
 
         if command == "File":
             self.get_file(filename)
@@ -105,7 +108,7 @@ class Server:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--host", help="Server address", default="127.0.0.1")
-    parser.add_argument("-p", "--port", help="Server port", type=int, default=1234)
+    parser.add_argument("-p", "--port", help="Server port", type=int, default=1238)
     args = parser.parse_args()
     server = Server(ip=args.host, port=args.port)
     while True:
