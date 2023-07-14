@@ -1,0 +1,7 @@
+1) Send 1 file ok
+2) send 2 files ok
+3) send 1 broken file
+4) send 2 broken files
+5) send 2 files 1 broken
+6) send 1 upgrade ok file
+7) send 1 broken upgrade file
