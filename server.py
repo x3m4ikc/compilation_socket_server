@@ -1,8 +1,8 @@
+import argparse
+import os
 import socket
 import subprocess
-import os
 import sys
-import argparse
 
 SIZE = 1024
 FORMAT = "utf"
