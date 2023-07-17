@@ -10,8 +10,6 @@ FORMAT = "utf"
 
 class Server:
     def __init__(self, port, ip):
-        self.__client_socket = None
-        self.__client_address = None
         self.port = port
         self.ip = ip
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,7 +27,7 @@ class Server:
     def handle_client_command(self):
         """Receive and exec command from client"""
         try:
-            command = self.__client_socket.recv(SIZE).decode(FORMAT)
+            command = self.get_data_from_client()
             print(command)
             command, filename = command.split()
         except ValueError:
@@ -43,9 +41,7 @@ class Server:
 
         if command == "Number":
             for _ in range(int(filename)):
-                command, filename = (
-                    self.__client_socket.recv(SIZE).decode(FORMAT).split()
-                )
+                command, filename = self.get_data_from_client().split()
                 self.get_file(filename)
                 self.compile_file(filename)
 
@@ -55,11 +51,11 @@ class Server:
         if command == "Upgrade":
             self.get_file(filename)
             if self.compile_file(filename):
-                self.__client_socket.send("Successfully upgraded".encode(FORMAT))
+                self.send_answer("Successfully upgraded")
                 self.restart_server(filename)
 
             else:
-                self.__client_socket.send("Server is not upgraded".encode(FORMAT))
+                self.send_answer("Server is not upgraded")
 
             self.__client_socket.close()
             print(f"{self.__client_address} disconnected")
@@ -68,14 +64,14 @@ class Server:
         """Receive file from client"""
         with open(filename, "w") as file:
             while True:
-                data = self.__client_socket.recv(SIZE).decode(FORMAT)
+                data = self.get_data_from_client()
                 if data == "END":
                     break
                 file.write(data)
-                self.__client_socket.send("Data received".encode(FORMAT))
+                self.send_answer("Data received")
 
         print(f"File {filename} is received")
-        self.__client_socket.send("Whole file is received".encode(FORMAT))
+        self.send_answer("Whole file is received")
 
     def compile_file(self, filename):
         """Exec file from client"""
@@ -83,19 +79,14 @@ class Server:
         try:
             output = subprocess.run(command, capture_output=True, text=True, timeout=10)
             output.check_returncode()
-            self.__client_socket.send(
-                f"File {filename} compilation is Ok".encode(FORMAT)
-            )
+            self.send_answer(f"File {filename} compilation is Ok")
             print(f"File {filename} is ok")
-            return True
         except subprocess.TimeoutExpired:
-            self.__client_socket.send(
-                f"File {filename} compilation is Ok".encode(FORMAT)
-            )
+            self.send_answer(f"File {filename} compilation is Ok")
             print(f"File {filename} is ok")
             return True
         except subprocess.CalledProcessError as ex:
-            self.__client_socket.send(f"{ex.stderr}".encode(FORMAT))
+            self.send_answer(ex.stderr)
 
     def restart_server(self, filename):
         """Restart server"""
@@ -103,6 +94,13 @@ class Server:
 
         print("Server is updated")
         os.execve(sys.executable, argv, os.environ)
+
+    def get_data_from_client(self):
+        data = self.__client_socket.recv(SIZE).decode(FORMAT)
+        return data
+
+    def send_answer(self, message):
+        self.__client_socket.send(message.encode(FORMAT))
 
 
 if __name__ == "__main__":
